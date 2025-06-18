@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puertas Mágicas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+   :root {
+        --primary-color: #E11D48;
+        --secondary-color: #FB7185;
+        --accent-color: #FCD34D;
+        --hat-color: #0369A1;
+        --hat-accent: #0EA5E9;
+    }
+    
+    body {
+        font-family: 'Baloo 2', cursive;
+        background: linear-gradient(135deg, #f8b195, #f67280, #c06c84);
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+    
+    .mascot {
+        transition: transform 0.3s ease;
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+    
+    .mascot:hover {
+        transform: scale(1.05);
+    }
+    
+    .speech-bubble {
+        position: relative;
+        background: #ffffff;
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .speech-bubble:after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 15px 15px 0;
+        border-style: solid;
+        border-color: #ffffff transparent transparent transparent;
+    }
+    
+    .btn-adventure {
+        transition: all 0.3s ease;
+        transform-origin: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-adventure:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-adventure:active {
+        transform: scale(0.95);
+    }
+    
+    .location-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .location-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .floating {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulsing {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes flap {
+        0% { transform: rotate(-15deg); }
+        50% { transform: rotate(15deg); }
+        100% { transform: rotate(-15deg); }
+    }
+    
+    .quiz-option {
+        transition: all 0.2s ease;
+    }
+    
+    .quiz-option:hover {
+        transform: translateX(10px);
+    }
+    
+    .quiz-option.correct {
+        background-color: #10B981;
+        color: white;
+    }
+    
+    .quiz-option.incorrect {
+        background-color: #EF4444;
+        color: white;
+    }
+    
+    @keyframes dance {
+        0% { transform: rotate(-5deg) translateY(0); }
+        100% { transform: rotate(5deg) translateY(-10px); }
+    }
+    
+    .cascade-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .cascade-buttons button:nth-child(1) {
+        transform: translateX(-30px);
+        background: linear-gradient(135deg, #FF4E50, #F9D423);
+        border: 2px solid #FFD700;
+    }
+    
+    .cascade-buttons button:nth-child(2) {
+        transform: translateX(30px);
+        background: linear-gradient(135deg, #56CCF2, #2F80ED);
+        border: 2px solid #00BFFF;
+    }
+    
+    .cascade-buttons button:nth-child(3) {
+        transform: translateX(-30px);
+        background: linear-gradient(135deg, #11998E, #38EF7D);
+        border: 2px solid #00FF7F;
+    }
+    
+    .cascade-buttons button:nth-child(4) {
+        transform: translateX(30px);
+        background: linear-gradient(135deg, #834D9B, #D04ED6);
+        border: 2px solid #DA70D6;
+    }
+    
+    .description-text {
+        color: #000000;
+        font-weight: 500;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .mascot {
+            max-width: 180px;
+        }
+        
+        .btn-adventure {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .speech-bubble {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .speech-bubble:after {
+            border-width: 10px 10px 0;
+            bottom: -10px;
+        }
+        
+        .cascade-buttons button:nth-child(1) {
+            transform: translateX(-20px);
+        }
+        
+        .cascade-buttons button:nth-child(2) {
+            transform: translateX(20px);
+        }
+        
+        .cascade-buttons button:nth-child(3) {
+            transform: translateX(-20px);
+        }
+        
+        .cascade-buttons button:nth-child(4) {
+            transform: translateX(20px);
+        }
+    }
+</style>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 p-4 md:p-10">
+        <!-- Mascota -->
+        <div class="flex flex-col items-center justify-center">
+            <div class="speech-bubble mb-4 md:mb-6 w-full max-w-sm">
+                <p id="mascot-speech" class="text-base md:text-lg text-center">¡Hola amigo! Soy Aventu, tu compañero de aventuras en Baja California. ¡Haz clic en mí para interactuar!</p>
+            </div>
+            
+            <div id="mascot" class="mascot cursor-pointer relative floating">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Cuerpo -->
+                    <ellipse cx="100" cy="120" rx="50" ry="55" fill="var(--primary-color)" />
+                    
+                    <!-- Cola -->
+                    <path d="M50 120 C30 100 20 130 40 150 C60 160 50 130 50 120" fill="var(--secondary-color)" stroke="var(--primary-color)" stroke-width="1" />
+                    
+                    <!-- Alas -->
+                    <path id="left-wing" d="M60 100 C40 90 30 110 40 130" stroke="var(--primary-color)" stroke-width="15" fill="none" stroke-linecap="round" />
+                    <path id="right-wing" d="M140 100 C160 90 170 110 160 130" stroke="var(--primary-color)" stroke-width="15" fill="none" stroke-linecap="round" />
+                    
+                    <!-- Cabeza -->
+                    <circle cx="100" cy="80" r="35" fill="var(--secondary-color)" />
+                    
+                    <!-- Ojos grandes -->
+                    <circle cx="85" cy="75" r="12" fill="white" />
+                    <circle cx="115" cy="75" r="12" fill="white" />
+                    <circle cx="85" cy="75" r="6" fill="#1F2937" />
+                    <circle cx="115" cy="75" r="6" fill="#1F2937" />
+                    <circle cx="83" cy="72" r="2" fill="white" />
+                    <circle cx="113" cy="72" r="2" fill="white" />
+                    
+                    <!-- Pico -->
+                    <path d="M95 85 L105 85 L100 95 Z" fill="var(--accent-color)" />
+                    
+                    <!-- Cresta -->
+                    <path d="M80 55 L90 40 L100 50 L110 40 L120 55" fill="var(--secondary-color)" stroke="var(--primary-color)" stroke-width="1" />
+                    
+                    <!-- Patas -->
+                    <path d="M85 170 L85 185 L95 185" stroke="var(--accent-color)" stroke-width="5" fill="none" stroke-linecap="round" />
+                    <path d="M115 170 L115 185 L105 185" stroke="var(--accent-color)" stroke-width="5" fill="none" stroke-linecap="round" />
+                    
+                    <!-- Sombrero -->
+                    <path d="M60 60 L140 60 L120 40 L80 40 Z" fill="var(--hat-color)" />
+                    <ellipse cx="100" cy="60" rx="45" ry="8" fill="var(--hat-accent)" />
+                    
+                    <!-- Decoraciones del sombrero -->
+                    <path d="M80 40 L85 30 L90 40" stroke="#F59E0B" stroke-width="2" fill="none" />
+                    <path d="M95 40 L100 25 L105 40" stroke="#F59E0B" stroke-width="2" fill="none" />
+                    <path d="M110 40 L115 30 L120 40" stroke="#F59E0B" stroke-width="2" fill="none" />
+                </svg>
+            </div>
+            
+            <!-- Botones de acción en cascada con colores más vivos -->
+            <div class="mt-8 w-full px-4">
+                <div class="cascade-buttons">
+                    <button id="btn-dance" class="btn-adventure w-64 text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center justify-center">
+                        <span class="mr-2">💃</span> ¡Bailar!
+                    </button>
+                    <button id="btn-wave" class="btn-adventure w-64 text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center justify-center">
+                        <span class="mr-2">👋</span> ¡Saludar!
+                    </button>
+                    <button id="btn-fact" class="btn-adventure w-64 text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center justify-center">
+                        <span class="mr-2">💡</span> Dato Curioso
+                    </button>
+                    <button id="btn-quiz" class="btn-adventure w-64 text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center justify-center">
+                        <span class="mr-2">🎮</span> ¡Trivia!
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-6 rounded-xl shadow-md">
+            <div id="main-content">
+                <h2 class="text-xl md:text-2xl font-bold text-indigo-800 mb-3 md:mb-4">Explora Baja California con Aventu</h2>
+                <p class="mb-4 md:mb-6 description-text text-sm md:text-base">Aventu es un gallito aventurero que conoce todos los rincones de Baja California y sus tradiciones. ¡Acompáñalo en un viaje por la península!</p>
+                
+                <h3 class="text-lg md:text-xl font-bold text-indigo-700 mb-2 md:mb-3">Lugares para explorar:</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
+                    <div id="location-1" class="location-card bg-white p-3 md:p-4 rounded-lg shadow-md">
+                        <div class="text-amber-500 text-2xl md:text-3xl mb-1 md:mb-2">🌵</div>
+                        <h4 class="font-bold text-gray-800 text-sm md:text-base">Valle de Guadalupe</h4>
+                        <p class="text-xs md:text-sm description-text">Región vinícola con paisajes impresionantes</p>
+                    </div>
+                    <div id="location-2" class="location-card bg-white p-3 md:p-4 rounded-lg shadow-md">
+                        <div class="text-blue-500 text-2xl md:text-3xl mb-1 md:mb-2">🌊</div>
+                        <h4 class="font-bold text-gray-800 text-sm md:text-base">Ensenada</h4>
+                        <p class="text-xs md:text-sm description-text">Puerto con rica tradición pesquera y gastronómica</p>
+                    </div>
+                    <div id="location-3" class="location-card bg-white p-3 md:p-4 rounded-lg shadow-md">
+                        <div class="text-green-500 text-2xl md:text-3xl mb-1 md:mb-2">🏞️</div>
+                        <h4 class="font-bold text-gray-800 text-sm md:text-base">Sierra de San Pedro Mártir</h4>
+                        <p class="text-xs md:text-sm description-text">Parque nacional con pinos y observatorio</p>
+                    </div>
+                    <div id="location-4" class="location-card bg-white p-3 md:p-4 rounded-lg shadow-md">
+                        <div class="text-red-500 text-2xl md:text-3xl mb-1 md:mb-2">🏜️</div>
+                        <h4 class="font-bold text-gray-800 text-sm md:text-base">Loreto</h4>
+                        <p class="text-xs md:text-sm description-text">Primera capital de las Californias con hermosas playas</p>
+                    </div>
+                    <div id="location-5" class="location-card bg-white p-3 md:p-4 rounded-lg shadow-md">
+                        <div class="text-orange-500 text-2xl md:text-3xl mb-1 md:mb-2">🌅</div>
+                        <h4 class="font-bold text-gray-800 text-sm md:text-base">Puerto Peñasco</h4>
+                        <p class="text-xs md:text-sm description-text">Hermoso destino costero con increíbles atardeceres</p>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-yellow-100 to-amber-100 p-3 md:p-4 rounded-lg border border-amber-200">
+                    <h3 class="text-base md:text-lg font-bold text-amber-800 mb-2">¡Viaja con Tours Aventuras!</h3>
+                    <p class="text-xs md:text-sm description-text mb-3">Descubre todos los tesoros de Baja California con nuestros tours personalizados. ¡Aventu te espera para vivir experiencias inolvidables!</p>
+                    <button id="btn-tour" class="bg-amber-600 hover:bg-amber-700 text-white px-3 md:px-4 py-1 md:py-2 rounded-lg font-medium transition-colors text-xs md:text-sm">¡Quiero viajar!</button>
+                </div>
+            </div>
+            
+            <div id="location-info" class="hidden">
+                <h4 id="location-title" class="font-bold text-lg md:text-xl text-indigo-800 mb-2"></h4>
+                <p id="location-description" class="text-sm md:text-base description-text mb-4"></p>
+                <button id="back-button" class="text-xs md:text-sm text-indigo-600 hover:text-indigo-800 font-medium">← Volver a lugares</button>
+            </div>
+            
+            <div id="quiz-container" class="hidden">
+                <h3 class="text-xl md:text-2xl font-bold text-indigo-800 mb-3 md:mb-4">¡Trivia de Baja California!</h3>
+                <div id="quiz-question" class="bg-white p-3 md:p-4 rounded-lg shadow-md mb-3 md:mb-4">
+                    <p class="text-base md:text-lg font-medium text-gray-800"></p>
+                </div>
+                <div id="quiz-options" class="space-y-2 md:space-y-3 mb-3 md:mb-4">
+                    <!-- Options will be inserted here -->
+                </div>
+                <div id="quiz-result" class="bg-indigo-100 p-3 md:p-4 rounded-lg border border-indigo-200 mb-3 md:mb-4 hidden">
+                    <p class="text-sm md:text-base description-text"></p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button id="quiz-next" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 md:px-4 py-1 md:py-2 rounded-lg font-medium transition-colors text-xs md:text-sm">Siguiente pregunta</button>
+                    <button id="quiz-back" class="text-indigo-600 hover:text-indigo-800 font-medium text-xs md:text-sm">Volver</button>
+                </div>
+            </div>
+            
+            <div id="tour-info" class="hidden">
+                <h3 class="text-xl md:text-2xl font-bold text-indigo-800 mb-3 md:mb-4">Tours Aventuras por la Baja</h3>
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-md mb-3 md:mb-4">
+                    <p class="text-sm md:text-base description-text mb-2 md:mb-3">¡Gracias por tu interés en viajar con nosotros! En Tours Aventuras ofrecemos experiencias únicas para descubrir todos los tesoros de Baja California:</p>
+                    <ul class="list-disc pl-5 mb-2 md:mb-3 text-xs md:text-sm description-text">
+                        <li>Tours enológicos por el Valle de Guadalupe</li>
+                        <li>Avistamiento de ballenas en temporada</li>
+                        <li>Expediciones a la Sierra de San Pedro Mártir</li>
+                        <li>Recorridos históricos por Loreto</li>
+                        <li>Escapadas a las playas de Puerto Peñasco</li>
+                    </ul>
+                    <p class="text-sm md:text-base description-text">Aventu estará encantado de ser tu guía en esta aventura inolvidable.</p>
+                </div>
+                <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-3 md:p-4 rounded-lg border border-emerald-200 mb-3 md:mb-4">
+                    <h4 class="font-bold text-emerald-800 mb-1 md:mb-2 text-sm md:text-base">¡Gracias por tu compañía!</h4>
+                    <p class="text-xs md:text-sm description-text">Aventu agradece tu interacción y espera verte pronto en un viaje por Baja California. ¡Las aventuras están esperando!</p>
+                </div>
+                <button id="tour-back" class="text-indigo-600 hover:text-indigo-800 font-medium text-xs md:text-sm">← Volver</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 md:p-6 text-white text-center">
+        <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">¡Personaliza a tu Aventu!</h2>
+        <div class="flex flex-wrap justify-center gap-3 md:gap-4 mb-4 md:mb-6">
+            <button id="color-red" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 border-2 border-white"></button>
+            <button id="color-blue" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 border-2 border-white"></button>
+            <button id="color-green" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-green-500 border-2 border-white"></button>
+            <button id="color-purple" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-purple-500 border-2 border-white"></button>
+        </div>
+        <div class="flex flex-wrap justify-center gap-2 md:gap-4">
+            <button id="hat-sombrero" class="bg-white text-indigo-600 px-3 md:px-4 py-1 md:py-2 rounded-lg font-medium text-xs md:text-sm">Sombrero</button>
+            <button id="hat-cowboy" class="bg-white text-indigo-600 px-3 md:px-4 py-1 md:py-2 rounded-lg font-medium text-xs md:text-sm">Vaquero</button>
+            <button id="hat-none" class="bg-white text-indigo-600 px-3 md:px-4 py-1 md:py-2 rounded-lg font-medium text-xs md:text-sm">Sin Sombrero</button>
+        </div>
+    </div>
+    
+    <footer class="bg-gray-800 text-white text-center p-4 text-xs md:text-sm">
+        <p>© 2023 Aventu - Mascota Digital de Baja California</p>
+        <p class="mt-1">
+            <a href="https://github.com/yourusername/aventu-mascota" target="_blank" class="text-blue-300 hover:text-blue-200">
+                Ver en GitHub
+            </a>
+        </p>
+    </footer>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Elementos DOM
+        const mascot = document.getElementById('mascot');
+        const mascotSpeech = document.getElementById('mascot-speech');
+        const btnDance = document.getElementById('btn-dance');
+        const btnWave = document.getElementById('btn-wave');
+        const btnFact = document.getElementById('btn-fact');
+        const btnQuiz = document.getElementById('btn-quiz');
+        const btnTour = document.getElementById('btn-tour');
+        
+        // Colores
+        const colorRed = document.getElementById('color-red');
+        const colorBlue = document.getElementById('color-blue');
+        const colorGreen = document.getElementById('color-green');
+        const colorPurple = document.getElementById('color-purple');
+        
+        // Sombreros
+        const hatSombrero = document.getElementById('hat-sombrero');
+        const hatCowboy = document.getElementById('hat-cowboy');
+        const hatNone = document.getElementById('hat-none');
+        
+        // Contenedores
+        const mainContent = document.getElementById('main-content');
+        const locationInfo = document.getElementById('location-info');
+        const quizContainer = document.getElementById('quiz-container');
+        const tourInfo = document.getElementById('tour-info');
+        
+        // Lugares
+        const locationCards = document.querySelectorAll('.location-card');
+        const locationTitle = document.getElementById('location-title');
+        const locationDescription = document.getElementById('location-description');
+        const backButton = document.getElementById('back-button');
+        
+        // Quiz
+        const quizQuestion = document.getElementById('quiz-question').querySelector('p');
+        const quizOptions = document.getElementById('quiz-options');
+        const quizResult = document.getElementById('quiz-result').querySelector('p');
+        const quizNext = document.getElementById('quiz-next');
+        const quizBack = document.getElementById('quiz-back');
+        
+        // Tour
+        const tourBack = document.getElementById('tour-back');
+        
+        // Datos de lugares
+        const locations = {
+            'location-1': {
+                title: 'Valle de Guadalupe',
+                description: 'Conocido como la "Toscana de México", el Valle de Guadalupe es la región vinícola más importante del país. Con más de 100 vinícolas, ofrece experiencias gastronómicas de clase mundial y hermosos paisajes desérticos con viñedos. Aventu ama pasear entre las vides y probar las uvas frescas.'
+            },
+            'location-2': {
+                title: 'Ensenada',
+                description: 'Puerto histórico famoso por su malecón, la Bufadora (un géiser marino natural) y por ser la cuna del taco de pescado. Su rica tradición pesquera se refleja en su deliciosa gastronomía marina. Aventu disfruta viendo los barcos en el puerto y comiendo mariscos frescos.'
+            },
+            'location-3': {
+                title: 'Sierra de San Pedro Mártir',
+                description: 'Este parque nacional alberga el Observatorio Astronómico Nacional y el pico más alto de Baja California. Sus bosques de pinos y cedros contrastan con el desierto circundante. Aventu adora acampar aquí y observar las estrellas en las noches despejadas.'
+            },
+            'location-4': {
+                title: 'Loreto',
+                description: 'Fundada en 1697, Loreto fue la primera capital de las Californias y hogar de la primera misión jesuita. Hoy es un destino turístico con hermosas playas, aguas cristalinas ideales para el buceo y la pesca deportiva. El Parque Nacional Bahía de Loreto protege varias islas con una rica biodiversidad marina. Aventu ama nadar en sus aguas y explorar su centro histórico.'
+            },
+            'location-5': {
+                title: 'Puerto Peñasco',
+                description: 'También conocido como Rocky Point, Puerto Peñasco es un destino costero en el Mar de Cortés con impresionantes mareas y atardeceres espectaculares. Sus playas de arena fina, como Playa Bonita y Sandy Beach, son perfectas para actividades acuáticas. El Centro Intercultural para el Estudio de Desiertos y Océanos (CEDO) ofrece exhibiciones sobre la ecología local. Aventu disfruta construyendo castillos de arena y observando los atardeceres.'
+            }
+        };
+        
+        // Datos curiosos
+        const facts = [
+            "Baja California tiene más de 1,200 km de costa, ¡es uno de los estados con más litoral en México!",
+            "En San Ignacio se pueden ver pinturas rupestres que datan de hace más de 7,500 años.",
+            "La Laguna de San Ignacio es uno de los mejores lugares del mundo para ver ballenas grises.",
+            "El Valle de los Cirios alberga plantas que solo crecen en esta región del mundo.",
+            "En Baja California se produce el 90% del vino mexicano.",
+            "Los indígenas Kumiai han habitado la región por más de 10,000 años.",
+            "Tijuana es considerada la capital mundial del taco de carne asada.",
+            "El Observatorio de San Pedro Mártir tiene uno de los cielos más claros para la observación astronómica.",
+            "Loreto fue fundada en 1697 y fue la primera capital de las Californias.",
+            "Puerto Peñasco tiene algunas de las mareas más dramáticas del mundo, con diferencias de hasta 7 metros.",
+            "El Mar de Cortés es conocido como 'el acuario del mundo' por su rica biodiversidad.",
+            "La Misión de Loreto fue la primera de las 18 misiones establecidas en la península de Baja California."
+        ];
+        
+        // Preguntas de trivia
+        const quizQuestions = [
+            {
+                question: "¿Cuál es la región vinícola más importante de México?",
+                options: ["Valle de Guadalupe", "Valle de Mexicali", "Valle de Tecate", "Valle de Tijuana"],
+                correct: 0
+            },
+            {
+                question: "¿Qué ciudad fue la primera capital de las Californias?",
+                options: ["Tijuana", "Mexicali", "Ensenada", "Loreto"],
+                correct: 3
+            },
+            {
+                question: "¿Qué pueblo indígena ha habitado Baja California por más de 10,000 años?",
+                options: ["Maya", "Azteca", "Kumiai", "Zapoteca"],
+                correct: 2
+            },
+            {
+                question: "¿Qué porcentaje del vino mexicano se produce en Baja California?",
+                options: ["50%", "70%", "80%", "90%"],
+                correct: 3
+            },
+            {
+                question: "¿Cómo se conoce también a Puerto Peñasco?",
+                options: ["Sandy Beach", "Rocky Point", "Stone Harbor", "Desert Port"],
+                correct: 1
+            },
+            {
+                question: "¿Qué alberga la Sierra de San Pedro Mártir?",
+                options: ["Un centro comercial", "Un observatorio astronómico", "Un parque acuático", "Una refinería"],
+                correct: 1
+            }
+        ];
+        
+        let currentQuizQuestion = 0;
+        
+        // Frases de la mascota
+        const phrases = [
+            "¡Hola! Soy Aventu, tu guía por Baja California.",
+            "¿Sabías que Baja California tiene desiertos, montañas y playas?",
+            "¡La comida de Baja California es deliciosa! ¿Has probado los tacos de pescado?",
+            "Me encanta explorar los viñedos del Valle de Guadalupe.",
+            "Las ballenas grises visitan nuestras costas cada año. ¡Es un espectáculo increíble!",
+            "¡Vamos de aventura por la península!",
+            "Loreto tiene una historia fascinante como primera capital de las Californias.",
+            "Los atardeceres en Puerto Peñasco son simplemente mágicos."
+        ];
+        
+        // Interacciones con la mascota
+        mascot.addEventListener('click', () => {
+            const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+            mascotSpeech.textContent = randomPhrase;
+            
+            mascot.classList.add('pulsing');
+            setTimeout(() => {
+                mascot.classList.remove('pulsing');
+            }, 2000);
+        });
+        
+        // Botones de interacción
+        btnDance.addEventListener('click', () => {
+            mascotSpeech.textContent = "¡A bailar! ¡La música tradicional de Baja California es muy alegre!";
+            
+            // Animar alas
+            const leftWing = document.getElementById('left-wing');
+            const rightWing = document.getElementById('right-wing');
+            
+            leftWing.style.animation = "flap 0.5s infinite";
+            rightWing.style.animation = "flap 0.5s infinite reverse";
+            
+            // Animar cuerpo
+            mascot.style.animation = "dance 0.5s ease-in-out infinite alternate";
+            
+            setTimeout(() => {
+                leftWing.style.animation = "";
+                rightWing.style.animation = "";
+                mascot.style.animation = "float 3s ease-in-out infinite";
+            }, 5000);
+        });
+        
+        btnWave.addEventListener('click', () => {
+            mascotSpeech.textContent = "¡Hola amigo! ¡Bienvenido a Baja California!";
+            
+            // Animar el ala derecha
+            const rightWing = document.getElementById('right-wing');
+            rightWing.setAttribute('d', "M140 100 C160 80 170 70 160 60");
+            
+            setTimeout(() => {
+                rightWing.setAttribute('d', "M140 100 C160 90 170 110 160 130");
+            }, 500);
+            
+            setTimeout(() => {
+                rightWing.setAttribute('d', "M140 100 C160 80 170 70 160 60");
+            }, 1000);
+            
+            setTimeout(() => {
+                rightWing.setAttribute('d', "M140 100 C160 90 170 110 160 130");
+            }, 1500);
+        });
+        
+        btnFact.addEventListener('click', () => {
+            const randomFact = facts[Math.floor(Math.random() * facts.length)];
+            mascotSpeech.textContent = randomFact;
+            
+            mascot.classList.add('pulsing');
+            setTimeout(() => {
+                mascot.classList.remove('pulsing');
+            }, 2000);
+        });
+        
+        btnQuiz.addEventListener('click', () => {
+            showQuiz();
+            mascotSpeech.textContent = "¡Vamos a poner a prueba tus conocimientos sobre Baja California!";
+        });
+        
+        btnTour.addEventListener('click', () => {
+            showTourInfo();
+            mascotSpeech.textContent = "¡Gracias por tu interés en viajar con Tours Aventuras! Será un placer ser tu guía.";
+        });
+        
+        // Cambiar color
+        colorRed.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary-color', '#E11D48');
+            document.documentElement.style.setProperty('--secondary-color', '#FB7185');
+            mascotSpeech.textContent = "¡Me encanta este color rojo! ¡Como el amanecer en el desierto de Baja!";
+        });
+        
+        colorBlue.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary-color', '#3B82F6');
+            document.documentElement.style.setProperty('--secondary-color', '#93C5FD');
+            mascotSpeech.textContent = "¡Azul como el Mar de Cortés! ¡Perfecto para un gallito marinero!";
+        });
+        
+        colorGreen.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary-color', '#10B981');
+            document.documentElement.style.setProperty('--secondary-color', '#6EE7B7');
+            mascotSpeech.textContent = "¡Verde como los viñedos del Valle de Guadalupe! ¡Me encanta!";
+        });
+        
+        colorPurple.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary-color', '#8B5CF6');
+            document.documentElement.style.setProperty('--secondary-color', '#C4B5FD');
+            mascotSpeech.textContent = "¡Púrpura como las uvas de nuestros viñedos! ¡Qué elegante me veo!";
+        });
+        
+        // Cambiar sombrero
+        hatSombrero.addEventListener('click', () => {
+            const hat = mascot.querySelectorAll('path:nth-of-type(6), ellipse:nth-of-type(2), path:nth-of-type(7), path:nth-of-type(8), path:nth-of-type(9)');
+            
+            hat.forEach(el => el.style.display = 'block');
+            
+            // Restaurar sombrero original
+            document.documentElement.style.setProperty('--hat-color', '#0369A1');
+            document.documentElement.style.setProperty('--hat-accent', '#0EA5E9');
+            
+            mascot.querySelector('path:nth-of-type(6)').setAttribute('d', "M60 60 L140 60 L120 40 L80 40 Z");
+            
+            mascotSpeech.textContent = "¡Mi sombrero tradicional! Perfecto para el sol de Baja California.";
+        });
+        
+        hatCowboy.addEventListener('click', () => {
+            const hat = mascot.querySelectorAll('path:nth-of-type(6), ellipse:nth-of-type(2), path:nth-of-type(7), path:nth-of-type(8), path:nth-of-type(9)');
+            
+            hat.forEach(el => el.style.display = 'block');
+            
+            // Cambiar a sombrero vaquero
+            document.documentElement.style.setProperty('--hat-color', '#7C2D12');
+            document.documentElement.style.setProperty('--hat-accent', '#92400E');
+            
+            mascot.querySelector('path:nth-of-type(6)').setAttribute('d', "M60 60 L140 60 L120 30 L80 30 Z");
+            
+            mascotSpeech.textContent = "¡Mi sombrero vaquero! Perfecto para las aventuras en la sierra.";
+        });
+        
+        hatNone.addEventListener('click', () => {
+            const hat = mascot.querySelectorAll('path:nth-of-type(6), ellipse:nth-of-type(2), path:nth-of-type(7), path:nth-of-type(8), path:nth-of-type(9)');
+            
+            hat.forEach(el => el.style.display = 'none');
+            
+            mascotSpeech.textContent = "¡Sin sombrero! Aunque hace mucho sol en Baja California...";
+        });
+        
+        // Interacción con lugares
+        locationCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.id;
+                const locationData = locations[id];
+                
+                // Ocultar contenido principal y mostrar información
+                mainContent.style.display = 'none';
+                locationInfo.style.display = 'block';
+                
+                // Actualizar información
+                locationTitle.textContent = locationData.title;
+                locationDescription.textContent = locationData.description;
+                
+                // Actualizar mensaje de la mascota
+                mascotSpeech.textContent = `¡${locationData.title} es uno de mis lugares favoritos en Baja California!`;
+            });
+        });
+        
+        // Botón volver de lugares
+        backButton.addEventListener('click', () => {
+            locationInfo.style.display = 'none';
+            mainContent.style.display = 'block';
+            mascotSpeech.textContent = "¿A qué lugar quieres ir ahora?";
+        });
+        
+        // Funciones de trivia
+        function showQuiz() {
+            mainContent.style.display = 'none';
+            locationInfo.style.display = 'none';
+            tourInfo.style.display = 'none';
+            quizContainer.style.display = 'block';
+            
+            document.getElementById('quiz-result').style.display = 'none';
+            loadQuizQuestion(currentQuizQuestion);
+        }
+        
+        function loadQuizQuestion(index) {
+            const question = quizQuestions[index];
+            quizQuestion.textContent = question.question;
+            
+            quizOptions.innerHTML = '';
+            question.options.forEach((option, i) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'quiz-option bg-white p-3 rounded-lg shadow-md cursor-pointer hover:bg-indigo-50 text-sm md:text-base description-text';
+                optionElement.textContent = option;
+                optionElement.dataset.index = i;
+                
+                optionElement.addEventListener('click', () => {
+                    const options = quizOptions.querySelectorAll('.quiz-option');
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                        opt.style.pointerEvents = 'none';
+                    });
+                    
+                    if (parseInt(optionElement.dataset.index) === question.correct) {
+                        optionElement.classList.add('correct');
+                        quizResult.textContent = "¡Correcto! ¡Bien hecho!";
+                        mascotSpeech.textContent = "¡Excelente! Eres todo un conocedor de Baja California.";
+                    } else {
+                        optionElement.classList.add('incorrect');
+                        options[question.correct].classList.add('correct');
+                        quizResult.textContent = `Incorrecto. La respuesta correcta es: ${question.options[question.correct]}`;
+                        mascotSpeech.textContent = "¡No te preocupes! Seguimos aprendiendo sobre Baja California.";
+                    }
+                    
+                    document.getElementById('quiz-result').style.display = 'block';
+                });
+                
+                quizOptions.appendChild(optionElement);
+            });
+        }
+        
+        quizNext.addEventListener('click', () => {
+            currentQuizQuestion = (currentQuizQuestion + 1) % quizQuestions.length;
+            document.getElementById('quiz-result').style.display = 'none';
+            loadQuizQuestion(currentQuizQuestion);
+            mascotSpeech.textContent = "¡Aquí viene otra pregunta! ¿La sabrás responder?";
+        });
+        
+        quizBack.addEventListener('click', () => {
+            quizContainer.style.display = 'none';
+            mainContent.style.display = 'block';
+            mascotSpeech.textContent = "¡Espero que hayas aprendido algo nuevo sobre Baja California!";
+        });
+        
+        // Funciones de tour
+        function showTourInfo() {
+            mainContent.style.display = 'none';
+            locationInfo.style.display = 'none';
+            quizContainer.style.display = 'none';
+            tourInfo.style.display = 'block';
+        }
+        
+        tourBack.addEventListener('click', () => {
+            tourInfo.style.display = 'none';
+            mainContent.style.display = 'block';
+            mascotSpeech.textContent = "¡Espero verte pronto en un tour por Baja California!";
+        });
+        
+        // Detectar si es móvil para ajustes adicionales
+        const isMobile = window.matchMedia("(max-width: 640px)").matches;
+        
+        if (isMobile) {
+            // Ajustes específicos para móviles
+            document.querySelectorAll('.btn-adventure').forEach(btn => {
+                btn.classList.add('text-sm');
+            });
+        }
+        
+        // Inicialización para GitHub
+        const githubLink = document.querySelector('footer a');
+        githubLink.addEventListener('click', (e) => {
+            // Puedes personalizar esto con tu repositorio real
+            if (githubLink.getAttribute('href').includes('yourusername')) {
+                e.preventDefault();
+                mascotSpeech.textContent = "¡Puedes crear tu propio repositorio para Aventu en GitHub!";
+            }
+        });
+    });
+</script>
+</body>
+</html>
