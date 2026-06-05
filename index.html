@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trivia de Tendencia Central</title>
+    <title>Estadística Play</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -33,7 +33,7 @@
             -webkit-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden; /* Previene scroll horizontal accidental */
+            overflow-x: hidden;
         }
 
         .container {
@@ -51,39 +51,335 @@
         .screen { display: none; flex-direction: column; width: 100%; }
         .screen.active { display: flex; }
 
-        h1 {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-top: 0;
-            margin-bottom: 5px;
-        }
+        h1 { font-size: 1.8rem; color: var(--primary); margin-top: 0; margin-bottom: 5px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 25px; font-size: 0.95rem; }
 
-        p.subtitle {
-            color: var(--text-muted);
-            margin-bottom: 25px;
-            font-size: 0.95rem;
-        }
-
-        /* Ingreso Seguro */
-        .form-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
-        label {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            display: block;
-            margin-bottom: 8px;
-        }
-
+        /* Ingreso */
+        .form-group { margin-bottom: 25px; text-align: left; }
+        label { font-weight: 700; font-size: 0.95rem; display: block; margin-bottom: 8px; }
         input[type="text"] {
-            width: 100%;
-            padding: 16px;
-            font-size: 1.1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.2
+            width: 100%; padding: 16px; font-size: 1.1rem; border: 2px solid #e2e8f0;
+            border-radius: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s;
+        }
+        input[type="text"]:focus { border-color: var(--primary); }
+        .error-msg {
+            color: var(--danger); font-size: 0.85rem; margin-top: 8px; font-weight: 600;
+            display: none; animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Botones */
+        .menu-btn {
+            background-color: var(--primary); color: white; border: none; padding: 16px;
+            font-size: 1.1rem; font-weight: 700; border-radius: 14px; cursor: pointer;
+            margin-bottom: 12px; transition: transform 0.1s; width: 100%; display: block;
+        }
+        .menu-btn:active { transform: scale(0.97); }
+        .btn-topic { background-color: #f8f9fa; color: var(--text-main); border: 2px solid #e2e8f0; }
+
+        /* Interfaz Juego */
+        .header-stats { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 2px solid var(--bg); margin-bottom: 20px; font-size: 0.95rem; }
+        .player-tag { font-weight: bold; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .score-tag { background-color: #eef2ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 700; }
+        .lives { font-size: 1.2rem; letter-spacing: 2px; }
+
+        .question-target { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; }
+        .data-set { font-size: 1.8rem; font-weight: bold; letter-spacing: 1px; background: var(--bg); padding: 15px; border-radius: 14px; margin-bottom: 25px; word-break: break-word;}
+
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .option-btn { background-color: var(--card-bg); border: 2px solid #e2e8f0; font-size: 1.3rem; font-weight: 700; padding: 18px 10px; border-radius: 16px; cursor: pointer; }
+        .option-btn.correct { background-color: var(--success); border-color: var(--success); color: white; }
+        .option-btn.incorrect { background-color: var(--danger-light); border-color: var(--danger-light); color: var(--danger); text-decoration: line-through; opacity: 0.8; }
+        .option-btn.blink-correct { animation: blinker 1.2s linear infinite; background-color: var(--success); border-color: var(--success); color: white; }
+        
+        .feedback-box { min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .feedback-text { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; text-align: center; }
+
+        /* Panel Récords */
+        .sidebar-trigger {
+            position: fixed; top: 20px; right: 0; background-color: var(--accent); color: #000; font-weight: 800;
+            padding: 12px 15px 12px 20px; border-radius: 20px 0 0 20px; box-shadow: -4px 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer; z-index: 998; border: none; font-size: 1rem;
+        }
+        .sidebar {
+            position: fixed; top: 0; right: -340px; width: 320px; max-width: 85vw; height: 100%;
+            background-color: var(--card-bg); box-shadow: -5px 0 25px rgba(0,0,0,0.15); z-index: 1000;
+            transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;
+        }
+        .sidebar.open { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s; }
+        .overlay.active { display: block; opacity: 1; }
+
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; color: var(--danger); cursor: pointer; font-weight: bold; }
+
+        .tab-container { display: flex; gap: 5px; margin-bottom: 15px; background: var(--bg); padding: 5px; border-radius: 10px; }
+        .tab-btn { flex: 1; padding: 8px 0; font-size: 0.8rem; border: none; background: none; border-radius: 8px; cursor: pointer; font-weight: 700; color: var(--text-muted); }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .leaderboard-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--bg); }
+        .rank-badge { width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; font-weight: bold; font-size: 0.85rem; margin-right: 10px; display: inline-block; }
+        .rank-1 { background: #ffe3a8; color: #b07d00; }
+        .rank-2 { background: #e2e8f0; color: #4a5568; }
+        .rank-3 { background: #ffedd5; color: #c2410c; }
+        .rank-other { background: var(--bg); color: var(--text-muted); }
+        .player-info { flex-grow: 1; text-align: left; font-size: 0.9rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .player-score { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <button class="sidebar-trigger" id="btn-open-sidebar">🏆 Récords</button>
+    <div class="overlay" id="sidebar-overlay"></div>
+
+    <div class="sidebar" id="leaderboard-sidebar">
+        <div class="sidebar-header">
+            <h2 style="margin:0; font-size: 1.3rem; color: var(--primary);">Mejores Puntajes</h2>
+            <button class="close-btn" id="btn-close-sidebar">✖</button>
+        </div>
+        <div class="tab-container">
+            <button class="tab-btn active" data-topic="media">Media</button>
+            <button class="tab-btn" data-topic="mediana">Mediana</button>
+            <button class="tab-btn" data-topic="moda">Moda</button>
+        </div>
+        <ul class="leaderboard-list" id="leaderboard-list"></ul>
+    </div>
+
+    <div class="container">
+        <div id="screen-welcome" class="screen active">
+            <h1>Estadística Play</h1>
+            <p class="subtitle">Domina las unidades de tendencia central</p>
+            
+            <div class="form-group">
+                <label for="player-name">Tu Nombre:</label>
+                <input type="text" id="player-name" placeholder="Escribe tu nombre aquí" maxlength="30" autocomplete="off">
+                <div class="error-msg" id="login-error">Ingresa al menos 2 letras para jugar.</div>
+            </div>
+
+            <label style="text-align: left; display: block; margin-bottom: 8px;">Selecciona tu reto:</label>
+            <button class="menu-btn btn-topic" data-select="media">📊 Media Aritmética</button>
+            <button class="menu-btn btn-topic" data-select="mediana">⚖️ Mediana</button>
+            <button class="menu-btn btn-topic" data-select="moda">🔥 Moda</button>
+        </div>
+
+        <div id="screen-game" class="screen">
+            <div class="header-stats">
+                <div class="player-tag" id="game-player-name">-</div>
+                <div>Aciertos: <span class="score-tag" id="game-score">0</span></div>
+                <div class="lives" id="game-lives">❤️❤️❤️</div>
+            </div>
+
+            <div class="question-target" id="game-topic-title">TEMA</div>
+            <p style="color: var(--text-muted); margin: 0 0 15px 0; font-size: 0.95rem;">Calcula el valor correcto para:</p>
+            
+            <div class="data-set" id="game-dataset">[0]</div>
+            <div class="options-grid" id="game-options"></div>
+
+            <div class="feedback-box">
+                <div class="feedback-text" id="game-feedback"></div>
+                <button class="menu-btn" id="game-action-btn" style="display:none; width:auto; padding: 12px 25px; margin: 0 auto;"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const state = { name: '', topic: '', score: 0, lives: 3, correct: 0, isActive: false, isOver: false };
+
+            if (!localStorage.getItem('estadistica_records')) {
+                localStorage.setItem('estadistica_records', JSON.stringify({ media: [], mediana: [], moda: [] }));
+            }
+
+            const inputName = document.getElementById('player-name');
+            const loginError = document.getElementById('login-error');
+            const screenWelcome = document.getElementById('screen-welcome');
+            const screenGame = document.getElementById('screen-game');
+            const sidebar = document.getElementById('leaderboard-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const listEl = document.getElementById('leaderboard-list');
+
+            // --- ACCESO CORREGIDO ---
+            document.querySelectorAll('.btn-topic').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const selectedTopic = this.getAttribute('data-select');
+                    const fullName = inputName.value.trim();
+                    
+                    // Validación relajada: solo requiere 2 caracteres como mínimo.
+                    if (fullName.length < 2) {
+                        loginError.style.display = 'block';
+                        inputName.style.borderColor = "var(--danger)";
+                        return;
+                    }
+
+                    loginError.style.display = 'none';
+                    inputName.style.borderColor = "var(--success)";
+                    
+                    state.name = fullName;
+                    state.topic = selectedTopic;
+                    state.score = 0;
+                    state.lives = 3;
+                    state.isOver = false;
+
+                    document.getElementById('game-player-name').textContent = state.name;
+                    document.getElementById('game-topic-title').textContent = selectedTopic === 'media' ? 'Media Aritmética' : selectedTopic.charAt(0).toUpperCase() + selectedTopic.slice(1);
+                    
+                    screenWelcome.classList.remove('active');
+                    screenGame.classList.add('active');
+                    
+                    startLevel();
+                });
+            });
+
+            inputName.addEventListener('input', () => {
+                loginError.style.display = 'none';
+                inputName.style.borderColor = "#e2e8f0";
+            });
+
+            // Sidebar Events
+            document.getElementById('btn-open-sidebar').addEventListener('click', () => {
+                sidebar.classList.add('open'); overlay.classList.add('active'); renderLeaderboard('media');
+            });
+
+            const closeSidebar = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+            document.getElementById('btn-close-sidebar').addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    renderLeaderboard(this.getAttribute('data-topic'));
+                });
+            });
+
+            const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+            function startLevel() {
+                state.isActive = true;
+                document.getElementById('game-action-btn').style.display = 'none';
+                document.getElementById('game-feedback').textContent = '';
+                document.getElementById('game-score').textContent = state.score;
+                
+                let hearts = "";
+                for(let i=0; i<3; i++) hearts += (i < state.lives) ? "❤️" : "🖤";
+                document.getElementById('game-lives').textContent = hearts;
+
+                let dataArray = [];
+                let answer = 0;
+
+                if (state.topic === 'media') {
+                    let arr = [randInt(1, 15), randInt(1, 15), randInt(1, 15), randInt(1, 15)];
+                    let sum = arr.reduce((a, b) => a + b, 0);
+                    let lastNum = (sum % 5 === 0 ? 0 : 5 - (sum % 5)) + (5 * randInt(0, 2));
+                    if (lastNum === 0) lastNum = 5;
+                    arr.push(lastNum);
+                    dataArray = arr;
+                    answer = dataArray.reduce((a, b) => a + b, 0) / 5;
+                } else if (state.topic === 'mediana') {
+                    dataArray = [randInt(1, 20), randInt(1, 20), randInt(1, 20), randInt(1, 20), randInt(1, 20)];
+                    answer = [...dataArray].sort((a, b) => a - b)[2];
+                } else if (state.topic === 'moda') {
+                    let m = randInt(2, 15);
+                    let d1 = randInt(1, 20); while(d1 === m) d1 = randInt(1, 20);
+                    let d2 = randInt(1, 20); while(d2 === m || d2 === d1) d2 = randInt(1, 20);
+                    dataArray = [m, m, m, d1, d2];
+                    answer = m;
+                }
+
+                dataArray.sort(() => Math.random() - 0.5);
+                state.correct = answer;
+                document.getElementById('game-dataset').textContent = `[ ${dataArray.join(', ')} ]`;
+                
+                let opts = new Set([answer]);
+                while(opts.size < 4) {
+                    let fake = answer + (randInt(-4, 4) || 5);
+                    if(fake >= 0) opts.add(fake);
+                }
+
+                const grid = document.getElementById('game-options');
+                grid.innerHTML = '';
+                Array.from(opts).sort(() => Math.random() - 0.5).forEach(val => {
+                    let btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = val;
+                    btn.addEventListener('click', () => evalAnswer(btn, val));
+                    grid.appendChild(btn);
+                });
+            }
+
+            function evalAnswer(btn, val) {
+                if (!state.isActive || btn.classList.contains('incorrect')) return;
+
+                const fb = document.getElementById('game-feedback');
+                const actionBtn = document.getElementById('game-action-btn');
+
+                if (val === state.correct) {
+                    state.isActive = false; state.score++; btn.classList.add('correct');
+                    disableGrid(); fb.textContent = "¡Correcto! ✨"; fb.style.color = "var(--success)";
+                    actionBtn.textContent = "Siguiente"; actionBtn.style.display = "inline-block"; actionBtn.onclick = startLevel;
+                } else {
+                    btn.classList.add('incorrect'); btn.textContent = "✘ " + val; state.lives--;
+                    
+                    let hearts = "";
+                    for(let i=0; i<3; i++) hearts += (i < state.lives) ? "❤️" : "🖤";
+                    document.getElementById('game-lives').textContent = hearts;
+
+                    if (state.lives > 0) {
+                        fb.textContent = "Error. ¡Te quedan " + state.lives + " vidas!"; fb.style.color = "var(--danger)";
+                    } else {
+                        state.isActive = false; state.isOver = true;
+                        fb.textContent = "¡Sin vidas! Fin del juego."; fb.style.color = "var(--danger)";
+                        disableGrid();
+                        
+                        document.querySelectorAll('.option-btn').forEach(b => {
+                            if (parseInt(b.textContent.replace('✘ ', '')) === state.correct) b.classList.add('blink-correct');
+                        });
+
+                        saveRecord(state.topic, state.name, state.score);
+                        actionBtn.textContent = "Salir al Menú"; actionBtn.style.display = "inline-block";
+                        actionBtn.onclick = () => {
+                            screenGame.classList.remove('active'); screenWelcome.classList.add('active');
+                            document.getElementById('btn-open-sidebar').click();
+                        };
+                    }
+                }
+            }
+
+            function disableGrid() { document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none'); }
+
+            function saveRecord(topic, name, score) {
+                if (score === 0) return;
+                let data = JSON.parse(localStorage.getItem('estadistica_records'));
+                data[topic].push({ name, score });
+                data[topic].sort((a, b) => b.score - a.score);
+                data[topic] = data[topic].slice(0, 10);
+                localStorage.setItem('estadistica_records', JSON.stringify(data));
+            }
+
+            function renderLeaderboard(topic) {
+                const data = JSON.parse(localStorage.getItem('estadistica_records'));
+                const list = data[topic] || [];
+                listEl.innerHTML = '';
+                if (list.length === 0) {
+                    listEl.innerHTML = '<li style="text-align:center; padding: 20px; color: var(--text-muted);">Sin récords aún</li>';
+                    return;
+                }
+                list.forEach((entry, idx) => {
+                    let rankClass = idx < 3 ? `rank-${idx + 1}` : 'rank-other';
+                    let li = document.createElement('li');
+                    li.className = 'leaderboard-item';
+                    const safeName = entry.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    li.innerHTML = `<div style="display:flex; align-items:center; width: 80%;"><span class="rank-badge ${rankClass}">${idx + 1}</span><span class="player-info">${safeName}</span></div><span class="player-score">${entry.score}</span>`;
+                    listEl.appendChild(li);
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
