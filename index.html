@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reto Infinito: Tendencia Central</title>
+    <title>Trivia de Tendencia Central</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -15,6 +15,7 @@
             --card-bg: #ffffff;
             --text-main: #2b2d42;
             --text-muted: #8d99ae;
+            --accent: #ffb703;
         }
 
         body {
@@ -22,109 +23,185 @@
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* Optimizaciones para pantallas táctiles */
+            box-sizing: border-box;
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        .game-container {
+        .container {
             background-color: var(--card-bg);
             width: 100%;
             max-width: 450px;
             border-radius: 24px;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
-            padding: 30px 20px;
+            padding: 25px 20px;
             text-align: center;
             box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
         }
 
-        .header {
+        .screen {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--bg);
+            flex-direction: column;
+            width: 100%;
         }
 
-        .title {
-            font-size: 1.2rem;
-            font-weight: 700;
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
+            font-size: 1.8rem;
             color: var(--primary);
-            margin: 0;
-        }
-
-        .lives {
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-        }
-
-        .question-box {
-            margin-bottom: 30px;
-        }
-
-        .question-text {
-            font-size: 1.1rem;
-            color: var(--text-muted);
+            margin-top: 0;
             margin-bottom: 10px;
         }
 
+        p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        /* Formulario e Inputs */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        /* Botones de Menú y Temas */
+        .menu-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+        }
+
+        .menu-btn:active { transform: scale(0.98); }
+        .btn-secondary { background-color: #6c757d; box-shadow: none; }
+        .btn-topic {
+            background-color: #f8f9fa;
+            color: var(--text-main);
+            border: 2px solid #e2e8f0;
+            box-shadow: none;
+        }
+        .btn-topic:hover { background-color: #edf2f7; }
+
+        /* Interfaz de Juego */
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--bg);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .player-tag {
+            font-weight: bold;
+            color: var(--text-main);
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .score-tag {
+            background-color: #eef2ff;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .lives {
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+        }
+
         .question-target {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--primary);
             text-transform: uppercase;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .data-set {
             font-size: 1.8rem;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             background: var(--bg);
             padding: 15px;
-            border-radius: 12px;
-            word-wrap: break-word;
+            border-radius: 14px;
+            margin-bottom: 25px;
         }
 
+        /* Opciones */
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .option-btn {
             background-color: var(--card-bg);
             border: 2px solid #e2e8f0;
             color: var(--text-main);
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 600;
-            padding: 18px 10px; /* Botones grandes para dedos */
+            padding: 18px 10px;
             border-radius: 16px;
             cursor: pointer;
-            transition: all 0.2s ease;
             outline: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
         }
 
-        .option-btn:active {
-            transform: scale(0.96);
-        }
-
-        /* Estados de respuesta */
         .option-btn.correct {
             background-color: var(--success);
             border-color: var(--success);
             color: white;
-            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
         }
 
         .option-btn.incorrect {
@@ -132,8 +209,7 @@
             border-color: var(--danger-light);
             color: var(--danger);
             text-decoration: line-through;
-            pointer-events: none; /* Evita múltiples clics en el mismo error */
-            opacity: 0.8;
+            opacity: 0.7;
         }
 
         .option-btn.blink-correct {
@@ -141,264 +217,194 @@
             background-color: var(--success);
             border-color: var(--success);
             color: white;
-            pointer-events: none;
         }
 
         @keyframes blinker {
-            50% { opacity: 0.6; transform: scale(1.05); box-shadow: 0 0 20px var(--success); }
+            50% { opacity: 0.5; transform: scale(1.03); }
         }
 
-        /* Panel de Retroalimentación */
-        .feedback-panel {
-            min-height: 80px;
+        /* Retroalimentación */
+        .feedback-box {
+            min-height: 85px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
 
-        .feedback-msg {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            min-height: 28px;
-        }
-
-        .action-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px 28px;
+        .feedback-text {
             font-size: 1.1rem;
             font-weight: 700;
-            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* Tablas de Líderes */
+        .tab-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            background: var(--bg);
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 5px;
+            font-size: 0.85rem;
+            border: none;
+            background: none;
+            border-radius: 8px;
             cursor: pointer;
-            display: none; /* Oculto por defecto */
-            transition: background-color 0.2s;
-            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+            font-weight: 600;
+            color: var(--text-muted);
         }
 
-        .action-btn:hover {
-            background-color: var(--primary-hover);
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .action-btn:active {
-            transform: scale(0.95);
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
         }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--bg);
+            font-weight: 600;
+        }
+
+        .leaderboard-table tr:not(:last-child) td {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .rank-1 { background-color: #ffe3a8; color: #b07d00; }
+        .rank-2 { background-color: #e2e8f0; color: #4a5568; }
+        .rank-3 { background-color: #ffedd5; color: #c2410c; }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        <div class="header">
-            <h1 class="title">Estadística Play</h1>
-            <div class="lives" id="lives-display">❤️❤️❤️</div>
-        </div>
-
-        <div class="question-box">
-            <div class="question-text">Encuentra la siguiente medida:</div>
-            <div class="question-target" id="question-type">MEDIA</div>
-            <div class="data-set" id="data-set">[ 0, 0, 0, 0, 0 ]</div>
-        </div>
-
-        <div class="options-grid" id="options-grid">
+    <div class="container">
+        
+        <div id="screen-welcome" class="screen">
+            <h1>Estadística Play</h1>
+            <p class="subtitle">Domina las medidas de tendencia central</p>
+            
+            <div class="form-group">
+                <label for="player-name">Escribe tu nombre:</label>
+                <input type="text" id="player-name" placeholder="Ej. Carlos" maxlength="12">
             </div>
 
-        <div class="feedback-panel">
-            <div class="feedback-msg" id="feedback-msg"></div>
-            <button class="action-btn" id="action-btn" onclick="handleActionBtn()"></button>
+            <label style="text-align: left;">Selecciona un tema para jugar:</label>
+            <button class="menu-btn btn-topic" onclick="selectTopic('media')">📊 Media Aritmética</button>
+            <button class="menu-btn btn-topic" onclick="selectTopic('mediana')">⚖️ Mediana</button>
+            <button class="menu-btn btn-topic" onclick="selectTopic('moda')">🔥 Moda</button>
+            
+            <button class="menu-btn btn-secondary" style="margin-top: 15px;" onclick="switchScreen('screen-scores')">🏆 Ver Récords</button>
         </div>
+
+        <div id="screen-game" class="screen hidden">
+            <div class="header-stats">
+                <div class="player-tag" id="game-player-name">Jugador</div>
+                <div>Aciertos: <span class="score-tag" id="game-score">0</span></div>
+                <div class="lives" id="game-lives">❤️❤️❤️</div>
+            </div>
+
+            <div class="question-target" id="game-topic-title">TEMA</div>
+            <p style="color: var(--text-muted); margin: 0 0 15px 0; font-size: 0.95rem;">Calcula el valor correcto para este conjunto:</p>
+            
+            <div class="data-set" id="game-dataset">[0, 0, 0, 0, 0]</div>
+
+            <div class="options-grid" id="game-options">
+                </div>
+
+            <div class="feedback-box">
+                <div class="feedback-text" id="game-feedback"></div>
+                <button class="menu-btn" id="game-action-btn" style="display:none; width:auto; padding: 12px 25px;" onclick="handleActionClick()"></button>
+            </div>
+        </div>
+
+        <div id="screen-scores" class="screen hidden">
+            <h1>Puntajes Máximos</h1>
+            <p class="subtitle">Los 10 mejores récords por categoría</p>
+
+            <div class="tab-container">
+                <button class="tab-btn active" id="tab-media" onclick="filterLeaderboard('media')">Media</button>
+                <button class="tab-btn" id="tab-mediana" onclick="filterLeaderboard('mediana')">Mediana</button>
+                <button class="tab-btn" id="tab-moda" onclick="filterLeaderboard('moda')">Moda</button>
+            </div>
+
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%">Pos</th>
+                        <th style="width: 55%">Nombre</th>
+                        <th style="width: 30%; text-align: right;">Aciertos</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    </tbody>
+            </table>
+
+            <button class="menu-btn btn-secondary" onclick="switchScreen('screen-welcome')">Volver al Menú</button>
+        </div>
+
     </div>
 
     <script>
-        // Variables de estado del juego
-        let lives = 3;
-        let correctAnswer = 0;
-        let isLevelActive = true;
-        let isGameOver = false;
+        // Estructuras de Estado
+        let state = {
+            playerName: '',
+            currentTopic: '', // 'media', 'mediana', 'moda'
+            score: 0,
+            lives: 3,
+            correctAnswer: 0,
+            isLevelActive: false,
+            isGameOver: false
+        };
 
-        // Elementos del DOM
-        const elLives = document.getElementById('lives-display');
-        const elQuestionType = document.getElementById('question-type');
-        const elDataSet = document.getElementById('data-set');
-        const elOptionsGrid = document.getElementById('options-grid');
-        const elFeedbackMsg = document.getElementById('feedback-msg');
-        const elActionBtn = document.getElementById('action-btn');
-
-        // Inicializar el primer nivel
-        initGame();
-
-        function initGame() {
-            lives = 3;
-            isGameOver = false;
-            updateLivesUI();
-            startNewLevel();
+        // Inicialización de base de datos local para Records
+        if (!localStorage.getItem('edu_leaderboards')) {
+            localStorage.setItem('edu_leaderboards', JSON.stringify({ media: [], mediana: [], moda: [] }));
         }
 
-        function startNewLevel() {
-            isLevelActive = true;
-            elActionBtn.style.display = 'none';
-            elFeedbackMsg.textContent = '';
-            
-            generateMathProblem();
-        }
-
-        function randInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        function generateMathProblem() {
-            const types = ['Media', 'Mediana', 'Moda'];
-            const selectedType = types[Math.floor(Math.random() * types.length)];
-            let dataArray = [];
-            let answer = 0;
-
-            if (selectedType === 'Moda') {
-                // Generar Moda clara: Un número se repite 3 veces de 5
-                const modeVal = randInt(2, 15);
-                let distractor1 = randInt(1, 20);
-                while(distractor1 === modeVal) distractor1 = randInt(1, 20);
-                let distractor2 = randInt(1, 20);
-                while(distractor2 === modeVal || distractor2 === distractor1) distractor2 = randInt(1, 20);
-                
-                dataArray = [modeVal, modeVal, modeVal, distractor1, distractor2];
-                answer = modeVal;
-
-            } else if (selectedType === 'Mediana') {
-                // Generar Mediana: 5 números aleatorios
-                dataArray = [randInt(1,20), randInt(1,20), randInt(1,20), randInt(1,20), randInt(1,20)];
-                let sorted = [...dataArray].sort((a, b) => a - b);
-                answer = sorted[2]; // El del medio en un array de 5
-
-            } else {
-                // Generar Media: Truco matemático para que la suma sea múltiplo de 5 y la media sea un entero
-                let tempArray = [randInt(1,12), randInt(1,12), randInt(1,12), randInt(1,12)];
-                let sum = tempArray.reduce((acc, curr) => acc + curr, 0);
-                let remainder = sum % 5;
-                let neededToMultiple = (remainder === 0) ? 0 : 5 - remainder;
-                
-                // Agregar un 5to número que complete el múltiplo de 5
-                let lastNumber = neededToMultiple + (5 * randInt(0, 2)); 
-                if (lastNumber === 0) lastNumber = 5;
-                
-                tempArray.push(lastNumber);
-                dataArray = tempArray;
-                answer = dataArray.reduce((acc, curr) => acc + curr, 0) / 5;
-            }
-
-            // Desordenar el array para que no sea obvio (especialmente para mediana y moda)
-            dataArray.sort(() => Math.random() - 0.5);
-
-            // Actualizar la UI de la pregunta
-            correctAnswer = answer;
-            elQuestionType.textContent = selectedType;
-            elDataSet.textContent = `[ ${dataArray.join(", ")} ]`;
-
-            generateOptions(answer);
-        }
-
-        function generateOptions(correct) {
-            let optionsSet = new Set();
-            optionsSet.add(correct);
-
-            // Generar 3 distractores creíbles
-            while(optionsSet.size < 4) {
-                let offset = randInt(-4, 4);
-                if (offset === 0) offset = 5; // Evitar duplicar la correcta
-                let fakeOption = correct + offset;
-                if (fakeOption >= 0) { // Mantener opciones positivas por simplicidad educativa
-                    optionsSet.add(fakeOption);
-                }
-            }
-
-            let optionsArray = Array.from(optionsSet).sort(() => Math.random() - 0.5);
-
-            // Limpiar grid y renderizar botones
-            elOptionsGrid.innerHTML = '';
-            optionsArray.forEach(val => {
-                let btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.textContent = val;
-                
-                // Evento compatible con clics y toques móviles
-                btn.addEventListener('click', () => checkAnswer(btn, val));
-                elOptionsGrid.appendChild(btn);
-            });
-        }
-
-        function checkAnswer(btnElement, selectedValue) {
-            // Si el nivel terminó o ya hizo clic en una opción incorrecta, no hacer nada
-            if (!isLevelActive || btnElement.classList.contains('incorrect')) return;
-
-            if (selectedValue === correctAnswer) {
-                // ACIERTO
-                isLevelActive = false;
-                btnElement.classList.add('correct');
-                lockAllOptions();
-                
-                elFeedbackMsg.textContent = "¡Excelente! Respuesta correcta ✨";
-                elFeedbackMsg.style.color = "var(--success)";
-                
-                showActionBtn("Siguiente Nivel");
-
-            } else {
-                // FALLO
-                btnElement.classList.add('incorrect');
-                btnElement.textContent = "✘ " + selectedValue;
-                lives--;
-                updateLivesUI();
-
-                if (lives > 0) {
-                    elFeedbackMsg.textContent = "Casi... ¡Inténtalo de nuevo!";
-                    elFeedbackMsg.style.color = "var(--danger)";
-                } else {
-                    // GAME OVER
-                    isLevelActive = false;
-                    isGameOver = true;
-                    elFeedbackMsg.textContent = "¡Sin vidas! La respuesta era " + correctAnswer;
-                    elFeedbackMsg.style.color = "var(--danger)";
-                    
-                    lockAllOptions();
-                    highlightCorrectAnswer();
-                    showActionBtn("Reintentar Juego");
-                }
+        // Navegación de Pantallas
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+            if(screenId === 'screen-scores') {
+                filterLeaderboard('media'); // Default tab al abrir records
             }
         }
 
-        function lockAllOptions() {
-            const buttons = document.querySelectorAll('.option-btn');
-            buttons.forEach(btn => btn.style.pointerEvents = 'none');
-        }
-
-        function highlightCorrectAnswer() {
-            const buttons = document.querySelectorAll('.option-btn');
-            buttons.forEach(btn => {
-                if (parseInt(btn.textContent.replace('✘ ', '')) === correctAnswer) {
-                    btn.classList.add('blink-correct');
-                }
-            });
-        }
-
-        function updateLivesUI() {
-            let hearts = "";
-            for(let i=0; i<3; i++) {
-                hearts += (i < lives) ? "❤️" : "🖤";
+        // Selección de Tema y Validación de Nombre
+        function selectTopic(topic) {
+            const nameInput = document.getElementById('player-name').value.trim();
+            if (!nameInput) {
+                alert('Por favor, ingresa tu nombre antes de elegir un tema.');
+                return;
             }
-            elLives.textContent = hearts;
-        }
-
-        function showActionBtn(text) {
-            elActionBtn.textContent = text;
-            elActionBtn.style.display = 'inline-block';
-        }
-
-        function handleActionBtn() {
-            if (isGameOver) {
-                initGame();
-            } else {
-                startNewLevel();
-            }
-        }
-    </script>
-</body>
-</html>
+            state.playerName = nameInput;
+            state.currentTopic = topic;
+            state.score =
