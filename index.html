@@ -54,7 +54,7 @@
         h1 { font-size: 1.8rem; color: var(--primary); margin-top: 0; margin-bottom: 5px; }
         p.subtitle { color: var(--text-muted); margin-bottom: 25px; font-size: 0.95rem; }
 
-        /* Ingreso */
+        /* Ingreso y Validación */
         .form-group { margin-bottom: 25px; text-align: left; }
         label { font-weight: 700; font-size: 0.95rem; display: block; margin-bottom: 8px; }
         input[type="text"] {
@@ -62,11 +62,14 @@
             border-radius: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s;
         }
         input[type="text"]:focus { border-color: var(--primary); }
+        
         .error-msg {
             color: var(--danger); font-size: 0.85rem; margin-top: 8px; font-weight: 600;
-            display: none; animation: shake 0.4s;
+            display: none; 
         }
 
+        /* Animación para llamar la atención si no pone nombre */
+        .shake-anim { animation: shake 0.4s; }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -152,6 +155,7 @@
     </div>
 
     <div class="container">
+        <!-- PANTALLA 1: INICIO -->
         <div id="screen-welcome" class="screen active">
             <h1>Estadística Play</h1>
             <p class="subtitle">Domina las unidades de tendencia central</p>
@@ -159,15 +163,17 @@
             <div class="form-group">
                 <label for="player-name">Tu Nombre:</label>
                 <input type="text" id="player-name" placeholder="Escribe tu nombre aquí" maxlength="30" autocomplete="off">
-                <div class="error-msg" id="login-error">Ingresa al menos 2 letras para jugar.</div>
+                <div class="error-msg" id="login-error">¡Escribe tu nombre para empezar!</div>
             </div>
 
             <label style="text-align: left; display: block; margin-bottom: 8px;">Selecciona tu reto:</label>
+            <!-- Data-select determina el tema a jugar -->
             <button class="menu-btn btn-topic" data-select="media">📊 Media Aritmética</button>
             <button class="menu-btn btn-topic" data-select="mediana">⚖️ Mediana</button>
             <button class="menu-btn btn-topic" data-select="moda">🔥 Moda</button>
         </div>
 
+        <!-- PANTALLA 2: JUEGO -->
         <div id="screen-game" class="screen">
             <div class="header-stats">
                 <div class="player-tag" id="game-player-name">-</div>
@@ -204,19 +210,32 @@
             const overlay = document.getElementById('sidebar-overlay');
             const listEl = document.getElementById('leaderboard-list');
 
-            // --- ACCESO CORREGIDO ---
+            // --- LÓGICA DE INGRESO SUPER SEGURA ---
             document.querySelectorAll('.btn-topic').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const selectedTopic = this.getAttribute('data-select');
+                btn.addEventListener('click', (e) => {
+                    // Evita cualquier comportamiento extraño por defecto
+                    e.preventDefault(); 
+                    
+                    // Asegura tomar el dato del botón sin importar si tocó el texto o el emoji
+                    const selectedTopic = e.currentTarget.getAttribute('data-select');
                     const fullName = inputName.value.trim();
                     
-                    // Validación relajada: solo requiere 2 caracteres como mínimo.
+                    // Si el nombre está vacío o tiene menos de 2 letras
                     if (fullName.length < 2) {
                         loginError.style.display = 'block';
                         inputName.style.borderColor = "var(--danger)";
+                        
+                        // Efecto de temblor
+                        inputName.classList.remove('shake-anim');
+                        void inputName.offsetWidth; // Forzar reinicio de animación
+                        inputName.classList.add('shake-anim');
+                        
+                        // Hacer focus automático para que escriba
+                        inputName.focus();
                         return;
                     }
 
+                    // Acceso concedido
                     loginError.style.display = 'none';
                     inputName.style.borderColor = "var(--success)";
                     
@@ -236,9 +255,11 @@
                 });
             });
 
+            // Limpiar el error cuando el alumno comienza a escribir
             inputName.addEventListener('input', () => {
                 loginError.style.display = 'none';
                 inputName.style.borderColor = "#e2e8f0";
+                inputName.classList.remove('shake-anim');
             });
 
             // Sidebar Events
@@ -251,10 +272,10 @@
             overlay.addEventListener('click', closeSidebar);
 
             document.querySelectorAll('.tab-btn').forEach(tab => {
-                tab.addEventListener('click', function() {
+                tab.addEventListener('click', (e) => {
                     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    renderLeaderboard(this.getAttribute('data-topic'));
+                    e.currentTarget.classList.add('active');
+                    renderLeaderboard(e.currentTarget.getAttribute('data-topic'));
                 });
             });
 
